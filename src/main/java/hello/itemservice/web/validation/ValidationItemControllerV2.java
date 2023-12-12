@@ -187,7 +187,7 @@ public class ValidationItemControllerV2 {
         return "redirect:/validation/v2/items/{itemId}";
     }
 
-    //V4 : rejectValue를 사용하여 FieldError 를 사용하지 않는 모델
+    //V4 : rejectValue를 사용(MessageCodesResolver아 자동으로 메시지를 생성)
     @PostMapping("/add")
     public String addItemV4(@ModelAttribute Item item, BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
         //검증 오류 결과를 보관
