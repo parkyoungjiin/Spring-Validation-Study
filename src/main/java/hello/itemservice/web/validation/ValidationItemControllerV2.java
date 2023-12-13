@@ -10,6 +10,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -246,10 +247,28 @@ public class ValidationItemControllerV2 {
 
     //V5 :  검증하는 로직을 validate 메서드에 분리하였음. (코드가 굉장히 간결해짐.)
 
-    @PostMapping("/add")
+//    @PostMapping("/add")
     public String addItemV5(@ModelAttribute Item item, BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
         itemValidator.validate(item, bindingResult);
 
+        //검증에 실패하면 다시 입력 폼으로(뷰 템플릿으로)
+        if (bindingResult.hasErrors()) {
+            log.info("errors={}", bindingResult);
+
+            return "validation/v2/addForm";
+        }
+
+        //검증에 걸리지 않고 성공한 경우
+        Item savedItem = itemRepository.save(item);
+        redirectAttributes.addAttribute("itemId", savedItem.getId());
+        redirectAttributes.addAttribute("status", true);
+        return "redirect:/validation/v2/items/{itemId}";
+    }
+
+    //V6 :  @Validated를 사용하여 자동 검증
+
+    @PostMapping("/add")
+    public String addItemV6(@Validated @ModelAttribute Item item, BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
         //검증에 실패하면 다시 입력 폼으로(뷰 템플릿으로)
         if (bindingResult.hasErrors()) {
             log.info("errors={}", bindingResult);
